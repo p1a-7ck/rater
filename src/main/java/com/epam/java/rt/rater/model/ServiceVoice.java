@@ -16,7 +16,7 @@ public class ServiceVoice implements Service {
     private final Money oneSecondCost;
     private final int prepaidSeconds;
     private final Money prepaidSecondsCost;
-    private final Billing billing;
+    private final Calculation calculation;
 
     public static class Builder {
         private final UUID id;
@@ -25,7 +25,7 @@ public class ServiceVoice implements Service {
         private Money oneSecondCost = Money.of(CurrencyUnit.USD, 0.20);
         private int prepaidSeconds = 0;
         private Money prepaidSecondsCost = Money.of(CurrencyUnit.USD, 0.0);
-        private Billing billing = null;
+        private Calculation calculation = null;
 
         Builder(UUID id, String name) {
             this.id = id;
@@ -64,10 +64,10 @@ public class ServiceVoice implements Service {
             return this;
         }
 
-        public Builder setBilling(Billing billing) {
-            if (billing == null)
-                throw new IllegalStateException("Billing should be defined anyway");
-            this.billing = billing;
+        public Builder setCalculation(Calculation calculation) {
+            if (calculation == null)
+                throw new IllegalStateException("Calculation should be defined anyway");
+            this.calculation = calculation;
             return this;
         }
     }
@@ -79,8 +79,8 @@ public class ServiceVoice implements Service {
         this.oneSecondCost = builder.oneSecondCost;
         this.prepaidSeconds = builder.prepaidSeconds;
         this.prepaidSecondsCost = builder.prepaidSecondsCost;
-        if (builder.billing == null) throw new IllegalStateException("There are no billing found");
-        this.billing = builder.billing;
+        if (builder.calculation == null) throw new IllegalStateException("There are no calculation found");
+        this.calculation = builder.calculation;
     }
 
     public UUID getId() {
@@ -107,8 +107,13 @@ public class ServiceVoice implements Service {
         return prepaidSecondsCost;
     }
 
-    public Billing getBilling() {
-        return billing;
+    public Calculation getCalculation() {
+        return calculation;
+    }
+
+    @Override
+    public Billing billingService(Billing billing) {
+        return null;
     }
 
     @Override
