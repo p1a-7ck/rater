@@ -1,5 +1,6 @@
 package com.epam.java.rt.rater.factory;
 
+import com.epam.java.rt.rater.model.Service;
 import com.epam.java.rt.rater.model.Tariff;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ public class TariffsFactory {
     private static final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 
     public static List<Tariff> createTariffs(String fileName) {
+        List<Service> uniqueServices = new ArrayList<>();
         List<Tariff> tariffs = new ArrayList<>();
         Tariff tariff = null;
         InputStream inputStream = null;
@@ -37,8 +39,11 @@ public class TariffsFactory {
                     if (chName.equals("tariffs")) {
                         parse = true;
                     } else if (parse && chName.equals("tariff")) {
-                         tariff = TariffFactory.createTariff(streamReader);
-                        if (tariff != null) tariffs.add(tariff);
+                         tariff = TariffFactory.createTariff(streamReader, uniqueServices);
+                        if (tariff != null) {
+                            tariffs.add(tariff);
+                            uniqueServices = resetUniqueServices(tariff, uniqueServices);
+                        }
                     }
                 } else if (chType == XMLStreamConstants.END_ELEMENT) {
                     chName = streamReader.getLocalName();
@@ -51,5 +56,13 @@ public class TariffsFactory {
             logger.error("File error:\n", exc);
         }
         return tariffs;
+    }
+
+    private static List<Service> resetUniqueServices(Tariff tariff, List<Service> uniqueServices) {
+        for(int i = 0; i < tariff.countServices(); i++) {
+            if(!uniqueServices.contains(tariff.getService(i)))
+                uniqueServices.add(tariff.getService(i));
+        }
+        return uniqueServices;
     }
 }

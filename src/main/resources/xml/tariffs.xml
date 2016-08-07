@@ -14,7 +14,7 @@
                     <amountValue>0.20</amountValue>
                 </oneSecondCost>
                 <calculation>
-                    <CalculationVoiceSimple/>
+                    <calculationVoiceSimple/>
                 </calculation>
             </serviceVoice>
         </services>
@@ -39,7 +39,9 @@
                         <amountValue>18</amountValue>
                     </prepaidSecondsCost>
                 </prepaid>
-                <calculationClassName>CalculationVoiceSimple</calculationClassName>
+                <calculation>
+                    <calculationVoiceSimple/>
+                </calculation>
             </serviceVoice>
         </services>
     </tariff>

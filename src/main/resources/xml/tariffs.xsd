@@ -20,7 +20,7 @@
 
     <xs:complexType name="CalculationType">
         <xs:choice>
-            <xs:element name="CalculationVoiceSimple" type="xs:anyType"/>
+            <xs:element name="calculationVoiceSimple" type="xs:anyType"/>
         </xs:choice>
     </xs:complexType>
 

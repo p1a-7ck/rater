@@ -1,5 +1,6 @@
 package com.epam.java.rt.rater.factory;
 
+import com.epam.java.rt.rater.model.Service;
 import com.epam.java.rt.rater.model.Tariff;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -15,7 +17,7 @@ import java.util.UUID;
 public class TariffFactory {
     private static final Logger logger = LoggerFactory.getLogger(TariffFactory.class);
 
-    public static Tariff createTariff(XMLStreamReader streamReader) throws XMLStreamException {
+    public static Tariff createTariff(XMLStreamReader streamReader, List<Service> uniqueServices) throws XMLStreamException {
         Tariff tariff = null;
         Tariff.Builder builder = null;
         String chName;
@@ -24,11 +26,7 @@ public class TariffFactory {
             chType = streamReader.next();
             if (chType == XMLStreamConstants.END_ELEMENT) {
                 chName = streamReader.getLocalName();
-                if (chName.equals("tariff")) {
-                    tariff = new Tariff(builder);
-                    System.out.println(tariff.getOperator());
-                    break;
-                }
+                if (chName.equals("tariff")) return new Tariff(builder);
             } else if (chType == XMLStreamConstants.START_ELEMENT) {
                 chName = streamReader.getLocalName();
                 if (chName.equals("id")) {
@@ -42,11 +40,11 @@ public class TariffFactory {
                 } else if (chName.equals("operator") && builder != null) {
                     builder = builder.setOperator(streamReader.getElementText());
                 } else if (chName.equals("services") && builder != null) {
-
+                    builder = builder.setServices(ServicesFactory.createServices(streamReader, uniqueServices));
                 }
             }
         }
-        return tariff;
+        return null;
     }
 
 }

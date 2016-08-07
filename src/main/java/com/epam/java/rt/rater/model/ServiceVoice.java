@@ -19,21 +19,25 @@ public class ServiceVoice implements Service {
     private final Calculation calculation;
 
     public static class Builder {
-        private final UUID id;
-        private final String name;
+        private UUID id;
+        private String name;
         private int minSecondsCharging = 1;
         private Money oneSecondCost = Money.of(CurrencyUnit.USD, 0.20);
         private int prepaidSeconds = 0;
         private Money prepaidSecondsCost = Money.of(CurrencyUnit.USD, 0.0);
         private Calculation calculation = null;
 
-        Builder(UUID id, String name) {
-            this.id = id;
-            this.name = name;
+        public static Builder of(UUID id) {
+            Builder builder = new Builder();
+            builder.id = id;
+            return builder;
         }
 
-        public static Builder build(UUID id, String name) {
-            return new Builder(id, name);
+        public Builder setName(String name) {
+            if (name.length() == 0)
+                throw new IllegalStateException("Name should be defined");
+            this.name = name;
+            return this;
         }
 
         public Builder setMinSecondsCharging(int minSecondsCharging) {
@@ -69,6 +73,19 @@ public class ServiceVoice implements Service {
                 throw new IllegalStateException("Calculation should be defined anyway");
             this.calculation = calculation;
             return this;
+        }
+
+        @Override
+        public String toString() {
+            return "Builder{" +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
+                    ", minSecondsCharging=" + minSecondsCharging +
+                    ", oneSecondCost=" + oneSecondCost +
+                    ", prepaidSeconds=" + prepaidSeconds +
+                    ", prepaidSecondsCost=" + prepaidSecondsCost +
+                    ", calculation=" + calculation +
+                    '}';
         }
     }
 
@@ -117,10 +134,44 @@ public class ServiceVoice implements Service {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ServiceVoice that = (ServiceVoice) o;
+
+        if (minSecondsCharging != that.minSecondsCharging) return false;
+        if (prepaidSeconds != that.prepaidSeconds) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (oneSecondCost != null ? !oneSecondCost.equals(that.oneSecondCost) : that.oneSecondCost != null)
+            return false;
+        if (prepaidSecondsCost != null ? !prepaidSecondsCost.equals(that.prepaidSecondsCost) : that.prepaidSecondsCost != null)
+            return false;
+        return calculation != null ? calculation.equals(that.calculation) : that.calculation == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + minSecondsCharging;
+        result = 31 * result + (oneSecondCost != null ? oneSecondCost.hashCode() : 0);
+        result = 31 * result + prepaidSeconds;
+        result = 31 * result + (prepaidSecondsCost != null ? prepaidSecondsCost.hashCode() : 0);
+        result = 31 * result + (calculation != null ? calculation.hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
         return "ServiceVoice{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", minSecondsCharging=" + minSecondsCharging +
+                ", oneSecondCost=" + oneSecondCost +
+                ", prepaidSeconds=" + prepaidSeconds +
+                ", prepaidSecondsCost=" + prepaidSecondsCost +
+                ", calculation=" + calculation +
                 '}';
     }
 }

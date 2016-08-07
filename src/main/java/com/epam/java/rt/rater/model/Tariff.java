@@ -39,13 +39,29 @@ public class Tariff {
             return this;
         }
 
+        public Builder setServices(List<Service> services) {
+            if (services.size() == 0)
+                throw new IllegalStateException("Services should be defined");
+            this.services = services;
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            return "Builder{" +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
+                    ", operator='" + operator + '\'' +
+                    ", services=" + services +
+                    '}';
+        }
     }
 
     public Tariff(Builder builder) {
         this.id = builder.id;
         this.name = builder.name;
         this.operator = builder.operator;
-        this.services = new ArrayList<>();
+        this.services = builder.services;
     }
 
     public UUID getId() {
@@ -70,6 +86,10 @@ public class Tariff {
 
     public Service getService(int index) {
         return this.services.get(index);
+    }
+
+    public int countServices() {
+        return this.services.size();
     }
 
     @Override
