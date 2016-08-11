@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://www.rater.kz/tariffs/"
-           xmlns:tns="http://www.rater.kz/tariffs/"
+           targetNamespace="http://www.rater.kz/tariffs/service/"
+           xmlns:tns="http://www.rater.kz/tariffs/service/"
            elementFormDefault="qualified">
 
     <xs:complexType name="PrepaidType">

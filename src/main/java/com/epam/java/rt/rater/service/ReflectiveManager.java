@@ -34,18 +34,18 @@ public class ReflectiveManager {
         return ReflectiveManager.INSTANCE;
     }
 
-    public ReflectiveClass getReflectiveClass(String className) {
+    public ReflectiveClass getReflectiveClass(String packageName, String className) {
         ReflectiveClass reflectiveClass = this.classes.get(className);
         if (reflectiveClass != null) return reflectiveClass;
-        return createReflectiveClass(className);
+        return createReflectiveClass(packageName, className);
     }
 
-    private ReflectiveClass createReflectiveClass(String className) {
+    private ReflectiveClass createReflectiveClass(String packageName, String className) {
         try {
-            Class<?> classEntity = Class.forName(className);
+            Class<?> classEntity = Class.forName(packageName.concat(".").concat(className));
             Class<?> classBuilder = null;
             try {
-                classBuilder = Class.forName(className.concat("$Builder"));
+                classBuilder = Class.forName(packageName.concat(className.concat(".").concat("$Builder")));
                 logger.info("Builder found for requested by name class '{}'", className);
             } catch (ClassNotFoundException exc) {
                 logger.info("Requested by name class '{}' have no builder", className);
@@ -55,7 +55,7 @@ public class ReflectiveManager {
             return reflectiveClass;
         } catch (ClassNotFoundException |
                 LinkageError exc) {
-            logger.error("Requested by name class not found or not returned", exc);
+            logger.error("Requested by name class '{}' not found or not returned", className, exc);
             return null;
         }
     }
