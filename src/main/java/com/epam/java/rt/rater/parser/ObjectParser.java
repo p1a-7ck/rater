@@ -60,9 +60,9 @@ public class ObjectParser {
                 //
                 this.forceEndElement = true;
             } else {
-                logger.debug("this.parseLevelStack.add({});", this.currentParseLevel);
-                this.parseLevelStack.add(this.currentParseLevel);
                 createObject(reflectiveClass);
+                this.parseLevelStack.add(this.currentParseLevel);
+                logger.debug("this.parseLevelStack.add({});", this.currentParseLevel);
             }
         }
     }
@@ -133,9 +133,13 @@ public class ObjectParser {
         if (this.currentParseLevel != null) {
             if (this.currentParseLevel.reflectiveField != null) {
                 try {
-                    ReflectiveManager.getInstance().setReflectiveFieldValue
-                            (this.currentParseLevel.reflectiveClass, this.currentParseLevel.reflectiveObject,
-                                    fieldName, this.currentParseLevel.reflectiveFieldValue.toString());
+                    if (this.currentParseLevel.reflectiveFieldValue instanceof StringBuilder) {
+                        ReflectiveManager.getInstance().setReflectiveFieldValue
+                                (this.currentParseLevel.reflectiveClass, this.currentParseLevel.reflectiveObject,
+                                        fieldName, this.currentParseLevel.reflectiveFieldValue.toString());
+                    } else {
+
+                    }
                 } catch (InvocationTargetException | IllegalAccessException exc) {
                     logger.error("Field '{}' value error", fieldName, exc);
                 }

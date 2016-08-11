@@ -1,5 +1,6 @@
 package com.epam.java.rt.rater.service;
 
+import com.epam.java.rt.rater.model.Tariff;
 import com.epam.java.rt.rater.model.reflective.ReflectiveClass;
 import com.epam.java.rt.rater.model.reflective.ReflectiveField;
 import org.slf4j.Logger;
@@ -9,10 +10,10 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -82,7 +83,7 @@ public class ReflectiveManager {
                 Constructor constructor = reflectiveClass.getEntityClass().getConstructor(reflectiveClass.getBuilderClass());
                 Object reflectiveObject = constructor.newInstance(reflectiveObjectBuilder);
                 reflectiveObjectBuilder = null;
-                defineBeanFields(reflectiveClass);
+                defineReflectiveClassFields(reflectiveClass);
                 return reflectiveObject;
             }
             logger.error("There is no target class defined for reflective object");
@@ -98,7 +99,7 @@ public class ReflectiveManager {
 
     public ReflectiveField getReflectiveField(ReflectiveClass reflectiveClass, String fieldName) {
         if (reflectiveClass == null) return null;
-        if (reflectiveClass.countFields() == 0) defineBeanFields(reflectiveClass);
+        if (reflectiveClass.countFields() == 0) defineReflectiveClassFields(reflectiveClass);
         return reflectiveClass.getField(fieldName);
     }
 
@@ -124,49 +125,47 @@ public class ReflectiveManager {
         reflectiveField.getSetter().invoke(reflectiveObject, fieldValue);
     }
 
-    private void defineBeanFields(ReflectiveClass reflectiveClass) {
-        ReflectiveField reflectiveField;
+    private void defineReflectiveClassFields(ReflectiveClass reflectiveClass) {
+        ReflectiveField reflectiveField = null;
         String fieldName;
-        Class<?> beanClass = null;
+        Class<?> fieldHolderClass = null;
         reflectiveClass.clearFields();
         if (reflectiveClass.getBuilderClass() != null) {
-            beanClass = reflectiveClass.getBuilderClass();
+            fieldHolderClass = reflectiveClass.getBuilderClass();
         } else if (reflectiveClass.getEntityClass() != null) {
-            beanClass = reflectiveClass.getEntityClass();
+            fieldHolderClass = reflectiveClass.getEntityClass();
         }
-        if (beanClass != null) {
-            try {
-                BeanInfo beanInfo = Introspector.getBeanInfo(beanClass);
-                PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
-                for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
-                    fieldName = propertyDescriptor.getName().substring(0, 1).toUpperCase()
-                            .concat(propertyDescriptor.getName().substring(1));
-                    if (!"Class".equals(fieldName)) {
-                        try {
-                            reflectiveField = new ReflectiveField(
-                                    propertyDescriptor.getPropertyType(),
-                                    beanClass.getMethod("get".concat(fieldName)),
-                                    beanClass.getMethod("set".concat(fieldName), propertyDescriptor.getPropertyType()));
-                            reflectiveClass.putField(propertyDescriptor.getName(), reflectiveField);
-                        } catch (NoSuchMethodException exc) {
-                            logger.error("Getter or setter not found", exc);
-                        }
+        if (fieldHolderClass != null) {
+            for (Field field : fieldHolderClass.getDeclaredFields()) {
+                try {
+                    fieldName = field.getName().substring(0, 1).toUpperCase().concat(field.getName().substring(1));
+                    if (List.class.isAssignableFrom(field.getType())) {
+                        fieldName = fieldName.substring(0, fieldName.length() - 4); // ...List - field
+                        reflectiveField = new ReflectiveField(
+                                field.getType(),
+                                fieldHolderClass.getMethod("get".concat(fieldName), int.class),
+                                fieldHolderClass.getMethod("add".concat(fieldName),
+                                        (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]));
+                    } else if (Map.class.isAssignableFrom(field.getType())) {
+                        fieldName = fieldName.substring(0, fieldName.length() - 3); // ...Map - field
+                        reflectiveField = new ReflectiveField(
+                                field.getType(),
+                                fieldHolderClass.getMethod("get".concat(fieldName),
+                                        (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]),
+                                fieldHolderClass.getMethod("put".concat(fieldName),
+                                        (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0],
+                                        (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[1]));
+                    } else {
+                        reflectiveField = new ReflectiveField(
+                                field.getType(),
+                                fieldHolderClass.getMethod("get".concat(fieldName)),
+                                fieldHolderClass.getMethod("set".concat(fieldName), field.getType()));
                     }
+                    reflectiveClass.putField(field.getName(), reflectiveField);
+                } catch (NoSuchMethodException exc) {
+                    logger.error("Getter, adder, putter or setter not found", exc);
                 }
-            } catch (IntrospectionException exc) {
-                logger.error("Getting bean info error", exc);
             }
-        }
-    }
-
-    public void setFieldValueObject(Object reflectiveObject, Method setterMethod, Object valueObject) {
-        Class<?>[] parameterTypes = setterMethod.getParameterTypes();
-        Class c = parameterTypes[0].getClass();
-        try {
-            setterMethod.invoke(reflectiveObject, c.cast(valueObject));
-        } catch (IllegalAccessException |
-                InvocationTargetException exc) {
-            logger.error("Method invoking error", exc);
         }
     }
 }
