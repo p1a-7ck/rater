@@ -1,44 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<tariffs xmlns="http://www.rater.kz/tariff/">
-    <tariff>
-        <id></id>
-        <name>standard</name>
+<tariffs xmlns="http://www.rater.kz/tariffs/">
+    <tariff id="" name="standard">
         <operator>tele2</operator>
         <services>
             <serviceVoice>
-                <id></id>
                 <name>standard</name>
                 <minSecondsCharging>10</minSecondsCharging>
-                <oneSecondCost>
-                    <currencyUnit>USD</currencyUnit>
-                    <amountValue>0.20</amountValue>
-                </oneSecondCost>
-                <calculation>
-                    <calculationVoiceSimple/>
-                </calculation>
-            </serviceVoice>
-        </services>
-    </tariff>
-    <tariff>
-        <id></id>
-        <name>vse ravno</name>
-        <operator>tele2</operator>
-        <services>
-            <serviceVoice>
-                <id></id>
-                <name>prepaid</name>
-                <minSecondsCharging>1</minSecondsCharging>
-                <oneSecondCost>
-                    <currencyUnit>USD</currencyUnit>
-                    <amountValue>0.18</amountValue>
-                </oneSecondCost>
-                <prepaid>
-                    <prepaidSeconds>3600</prepaidSeconds>
-                    <prepaidSecondsCost>
-                        <currencyUnit>USD</currencyUnit>
-                        <amountValue>18</amountValue>
-                    </prepaidSecondsCost>
-                </prepaid>
+                <oneSecondCost>USD, 0.20</oneSecondCost>
                 <calculation>
                     <calculationVoiceSimple/>
                 </calculation>

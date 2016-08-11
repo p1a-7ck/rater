@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.rater.kz/tariffs/"
+           xmlns:tns="http://www.rater.kz/tariffs/"
+           elementFormDefault="qualified">
+
+    <xs:complexType name="PrepaidType">
+        <xs:sequence>
+            <xs:element name="prepaidSeconds" type="xs:int"/>
+            <xs:element name="prepaidSecondsCost" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="CalculationType">
+        <xs:choice>
+            <xs:element name="calculationVoiceSimple" type="xs:anyType"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="ServiceVoiceType">
+        <xs:sequence>
+            <xs:element name="id" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="minSecondsCharging" type="xs:int"/>
+            <xs:element name="oneSecondCost" type="xs:string"/>
+            <xs:element name="prepaid" type="tns:PrepaidType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="calculation" type="tns:CalculationType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ServiceType">
+        <xs:choice>
+            <xs:element name="serviceVoice" type="tns:ServiceVoiceType"/>
+        </xs:choice>
+    </xs:complexType>
+
+</xs:schema>
