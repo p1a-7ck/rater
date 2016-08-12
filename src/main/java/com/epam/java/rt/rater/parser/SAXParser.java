@@ -17,16 +17,13 @@ import java.io.InputStream;
  */
 public class SAXParser {
     private static final Logger logger = LoggerFactory.getLogger(SAXParser.class);
-    private SAXHandler handler;
-    private XMLReader reader;
 
-    public SAXParser(ObjectParser objectParser) {
-        this.handler = new SAXHandler(objectParser);
+    SAXParser(ObjectParser objectParser, InputStream inputStream) {
         try {
-            reader = XMLReaderFactory.createXMLReader();
-            reader.setContentHandler(this.handler);
-            InputSource inputSource = new InputSource(objectParser.getInputStream());
-            reader.parse(inputSource);
+            SAXHandler handler = new SAXHandler(objectParser);
+            XMLReader reader = XMLReaderFactory.createXMLReader();
+            reader.setContentHandler(handler);
+            reader.parse(new InputSource(inputStream));
         } catch (SAXException exc) {
             logger.error("SAX XMLReader creating error", exc);
         } catch (IOException exc) {
@@ -34,37 +31,33 @@ public class SAXParser {
         }
     }
 
-    class SAXHandler extends DefaultHandler {
+    private class SAXHandler extends DefaultHandler {
         private ObjectParser objectParser;
 
-        public SAXHandler(ObjectParser objectParser) {
+        SAXHandler(ObjectParser objectParser) {
             this.objectParser = objectParser;
         }
 
-        public void startDocument() {
-            this.objectParser.startDocument();
-        }
+        public void startDocument() {}
 
         public void startElement(String uri, String localName, String qName, Attributes attributes) {
-            this.objectParser.startElement(localName);
+            this.objectParser.getObjectHandler().startElement(localName);
             for(int i = 0; i < attributes.getLength(); i++) {
-                this.objectParser.startElement(attributes.getLocalName(i));
-                this.objectParser.elementContent(attributes.getValue(i));
-                this.objectParser.endElement(attributes.getLocalName(i));
+                this.objectParser.getObjectHandler().startElement(attributes.getLocalName(i));
+                this.objectParser.getObjectHandler().elementContent(attributes.getValue(i));
+                this.objectParser.getObjectHandler().endElement(attributes.getLocalName(i));
             }
         }
 
         public void characters(char[] ch, int start, int length) {
-            this.objectParser.elementContent((new String(ch, start, length)).trim());
+            this.objectParser.getObjectHandler().elementContent((new String(ch, start, length)).trim());
         }
 
         public void endElement(String uri, String localName, String qName) {
-            this.objectParser.endElement(localName);
+            this.objectParser.getObjectHandler().endElement(localName);
         }
 
-        public void endDocument() {
-            this.objectParser.endDocument();
-        }
+        public void endDocument() {}
     }
 }
 

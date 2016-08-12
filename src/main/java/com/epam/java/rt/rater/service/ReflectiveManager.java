@@ -46,7 +46,7 @@ public class ReflectiveManager {
             Class<?> classEntity = Class.forName(packageName.concat(".").concat(className));
             Class<?> classBuilder = null;
             try {
-                classBuilder = Class.forName(packageName.concat(className.concat(".").concat("$Builder")));
+                classBuilder = Class.forName(packageName.concat(".").concat(className).concat("$Builder"));
                 logger.info("Builder found for requested by name class '{}'", className);
             } catch (ClassNotFoundException exc) {
                 logger.info("Requested by name class '{}' have no builder", className);
