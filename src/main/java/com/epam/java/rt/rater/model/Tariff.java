@@ -34,7 +34,6 @@ public class Tariff {
             if (name.length() == 0)
                 throw new IllegalArgumentException("Name should be defined");
             this.name = name;
-            System.out.println("name set to '" + name + "'");
             return this;
         }
 

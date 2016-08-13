@@ -17,5 +17,7 @@ public class Main {
         System.out.println(objectParser.parseXML(StAXParser.class, "xml/tariffs.xml"));
         System.out.println(objectParser.parseXML(DOMParser.class, "xml/tariffs.xml"));
 
+        System.out.println(ObjectParser.to(TariffList.class.getPackage()).parseXML(StAXParser.class, "xml/tariffs.xml"));
+
     }
 }

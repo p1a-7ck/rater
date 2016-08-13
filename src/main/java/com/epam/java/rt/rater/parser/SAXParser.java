@@ -15,12 +15,16 @@ import java.io.InputStream;
 /**
  * rater
  */
-public class SAXParser {
+public class SAXParser implements Parser {
     private static final Logger logger = LoggerFactory.getLogger(SAXParser.class);
 
-    SAXParser(ObjectParser objectParser, InputStream inputStream) {
+    SAXParser() {
+    }
+
+    @Override
+    public void parse(ObjectHandler objectHandler, InputStream inputStream) {
         try {
-            SAXHandler handler = new SAXHandler(objectParser);
+            SAXHandler handler = new SAXHandler(objectHandler);
             XMLReader reader = XMLReaderFactory.createXMLReader();
             reader.setContentHandler(handler);
             reader.parse(new InputSource(inputStream));
@@ -32,31 +36,36 @@ public class SAXParser {
     }
 
     private class SAXHandler extends DefaultHandler {
-        private ObjectParser objectParser;
+        private ObjectHandler objectHandler;
 
-        SAXHandler(ObjectParser objectParser) {
-            this.objectParser = objectParser;
+        SAXHandler(ObjectHandler objectHandler) {
+            this.objectHandler = objectHandler;
         }
 
+        @Override
         public void startDocument() {}
 
+        @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) {
-            this.objectParser.getObjectHandler().startElement(localName);
+            this.objectHandler.getCurrent().startElement(localName);
             for(int i = 0; i < attributes.getLength(); i++) {
-                this.objectParser.getObjectHandler().startElement(attributes.getLocalName(i));
-                this.objectParser.getObjectHandler().elementContent(attributes.getValue(i));
-                this.objectParser.getObjectHandler().endElement(attributes.getLocalName(i));
+                this.objectHandler.getCurrent().startElement(attributes.getLocalName(i));
+                this.objectHandler.getCurrent().elementContent(attributes.getValue(i));
+                this.objectHandler.getCurrent().endElement(attributes.getLocalName(i));
             }
         }
 
+        @Override
         public void characters(char[] ch, int start, int length) {
-            this.objectParser.getObjectHandler().elementContent((new String(ch, start, length)).trim());
+            this.objectHandler.getCurrent().elementContent((new String(ch, start, length)).trim());
         }
 
+        @Override
         public void endElement(String uri, String localName, String qName) {
-            this.objectParser.getObjectHandler().endElement(localName);
+            this.objectHandler.getCurrent().endElement(localName);
         }
 
+        @Override
         public void endDocument() {}
     }
 }

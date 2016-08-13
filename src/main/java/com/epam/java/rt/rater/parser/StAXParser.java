@@ -12,35 +12,31 @@ import java.io.InputStream;
 /**
  * rater
  */
-public class StAXParser {
+public class StAXParser implements Parser {
     private static final Logger logger = LoggerFactory.getLogger(StAXParser.class);
 
-    StAXParser(ObjectParser objectParser, InputStream inputStream) {
-        try {
-            XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-            StAXHandler(objectParser, inputFactory.createXMLStreamReader(inputStream));
-        } catch (XMLStreamException exc) {
-            logger.error("Parsing error:\n", exc);
-        }
-
+    StAXParser() {
     }
 
-    private void StAXHandler(ObjectParser objectParser, XMLStreamReader streamReader) {
+    @Override
+    public void parse(ObjectHandler objectHandler, InputStream inputStream) {
         int chType;
         try {
+            XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+            XMLStreamReader streamReader = inputFactory.createXMLStreamReader(inputStream);
             while (streamReader.hasNext()) {
                 chType = streamReader.next();
                 if (chType == XMLStreamConstants.START_ELEMENT) {
-                    objectParser.getObjectHandler().startElement(streamReader.getLocalName());
+                    objectHandler.getCurrent().startElement(streamReader.getLocalName());
                     for (int i = 0; i < streamReader.getAttributeCount(); i++) {
-                        objectParser.getObjectHandler().startElement(streamReader.getAttributeLocalName(i));
-                        objectParser.getObjectHandler().elementContent(streamReader.getAttributeValue(i));
-                        objectParser.getObjectHandler().endElement(streamReader.getAttributeLocalName(i));
+                        objectHandler.getCurrent().startElement(streamReader.getAttributeLocalName(i));
+                        objectHandler.getCurrent().elementContent(streamReader.getAttributeValue(i));
+                        objectHandler.getCurrent().endElement(streamReader.getAttributeLocalName(i));
                     }
                 } else if (chType == XMLStreamConstants.CHARACTERS) {
-                    objectParser.getObjectHandler().elementContent(streamReader.getText());
+                    objectHandler.getCurrent().elementContent(streamReader.getText());
                 } else if (chType == XMLStreamConstants.END_ELEMENT) {
-                    objectParser.getObjectHandler().endElement(streamReader.getLocalName());
+                    objectHandler.getCurrent().endElement(streamReader.getLocalName());
                 }
             }
         } catch (XMLStreamException exc) {
