@@ -16,6 +16,7 @@ import java.util.UUID;
  */
 public class MoneyFactory {
     private static final Logger logger = LoggerFactory.getLogger(MoneyFactory.class);
+/*
 
     public static Money createMoney(XMLStreamReader streamReader, String chParentName) throws XMLStreamException {
         CurrencyUnit currencyUnit = null;
@@ -38,4 +39,5 @@ public class MoneyFactory {
         }
         return null;
     }
+*/
 }

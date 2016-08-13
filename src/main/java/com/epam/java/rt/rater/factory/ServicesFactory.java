@@ -15,6 +15,7 @@ import java.util.List;
  */
 public class ServicesFactory {
     private static final Logger logger = LoggerFactory.getLogger(ServicesFactory.class);
+/*
 
     public static List<Service> createServices(XMLStreamReader streamReader, List<Service> uniqueServices) throws XMLStreamException {
         List<Service> services = new ArrayList<>();
@@ -36,4 +37,5 @@ public class ServicesFactory {
         }
         return services;
     }
+*/
 }

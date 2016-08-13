@@ -20,7 +20,7 @@ public class TariffsFactory {
     private static final Logger logger = LoggerFactory.getLogger(TariffsFactory.class);
     private static final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 
-    public static List<Tariff> createTariffs(String fileName) {
+ /*   public static List<Tariff> createTariffs(String fileName) {
         List<Service> uniqueServices = new ArrayList<>();
         List<Tariff> tariffs = new ArrayList<>();
         Tariff tariff = null;
@@ -64,5 +64,5 @@ public class TariffsFactory {
                 uniqueServices.add(tariff.getService(i));
         }
         return uniqueServices;
-    }
+    }*/
 }

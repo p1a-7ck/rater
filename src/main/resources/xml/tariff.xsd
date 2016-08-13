@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://www.rater.kz/tariffs/tariff/"
-           xmlns:tns="http://www.rater.kz/tariffs/tariff/"
+           targetNamespace="http://www.rater.kz/tariffList/"
+           xmlns:tns="http://www.rater.kz/tariffList/"
            elementFormDefault="qualified">
 
     <xs:include schemaLocation="service.xsd"/>
@@ -9,10 +9,12 @@
     <xs:complexType name="TariffType">
         <xs:sequence>
             <xs:element name="operator" type="xs:string"/>
-            <xs:element name="services" type="tns:ServiceType" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="serviceList" type="tns:ServiceListType" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="id" type="xs:string"/>
         <xs:attribute name="name" type="xs:string"/>
     </xs:complexType>
+
+    <xs:element name="tariff" type="tns:TariffType"/>
 
 </xs:schema>

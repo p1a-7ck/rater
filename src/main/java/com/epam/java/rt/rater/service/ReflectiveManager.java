@@ -1,17 +1,11 @@
 package com.epam.java.rt.rater.service;
 
-import com.epam.java.rt.rater.model.Tariff;
 import com.epam.java.rt.rater.model.reflective.ReflectiveClass;
 import com.epam.java.rt.rater.model.reflective.ReflectiveField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,21 +50,32 @@ public class ReflectiveManager {
             return reflectiveClass;
         } catch (ClassNotFoundException |
                 LinkageError exc) {
-            logger.error("Requested by name class '{}' not found or not returned", className, exc);
+            logger.error("Requested by name class '{}' not found or not returned ({})", className, exc.getMessage());
             return null;
+        }
+    }
+
+    private Object newOrGetInstance(Class<?> sourceClass)
+            throws InstantiationException, IllegalAccessException, InvocationTargetException {
+        try {
+            return sourceClass.newInstance();
+        } catch (IllegalAccessException exc) {
+            Method method = ReflectiveManager.getInstance().getClassMethod(sourceClass, "getInstance");
+            if (method == null) throw new InstantiationException();
+            return method.invoke(null);
         }
     }
 
     public Object createReflectiveObject(ReflectiveClass reflectiveClass) {
         try {
             if (reflectiveClass.getBuilderClass() != null) {
-                return reflectiveClass.getBuilderClass().newInstance();
+                return newOrGetInstance(reflectiveClass.getBuilderClass());
             } else if (reflectiveClass.getEntityClass() != null) {
-                return reflectiveClass.getEntityClass().newInstance();
+                return newOrGetInstance(reflectiveClass.getEntityClass());
             }
             logger.error("There are no class defined for reflective object");
             return null;
-        } catch (InstantiationException | IllegalAccessException exc) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException exc) {
             logger.error("Can't create reflective object", exc);
             return null;
         }
@@ -126,6 +131,7 @@ public class ReflectiveManager {
     }
 
     private void defineReflectiveClassFields(ReflectiveClass reflectiveClass) {
+        logger.debug("defineReflectiveClassFields({})", reflectiveClass);
         ReflectiveField reflectiveField = null;
         String fieldName;
         Class<?> fieldHolderClass = null;
@@ -137,35 +143,64 @@ public class ReflectiveManager {
         }
         if (fieldHolderClass != null) {
             for (Field field : fieldHolderClass.getDeclaredFields()) {
-                try {
-                    fieldName = field.getName().substring(0, 1).toUpperCase().concat(field.getName().substring(1));
-                    if (List.class.isAssignableFrom(field.getType())) {
-                        fieldName = fieldName.substring(0, fieldName.length() - 4); // ...List - field
-                        reflectiveField = new ReflectiveField(
-                                field.getType(),
-                                fieldHolderClass.getMethod("get".concat(fieldName), int.class),
-                                fieldHolderClass.getMethod("add".concat(fieldName),
-                                        (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]));
-                    } else if (Map.class.isAssignableFrom(field.getType())) {
-                        fieldName = fieldName.substring(0, fieldName.length() - 3); // ...Map - field
-                        reflectiveField = new ReflectiveField(
-                                field.getType(),
-                                fieldHolderClass.getMethod("get".concat(fieldName),
-                                        (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]),
-                                fieldHolderClass.getMethod("put".concat(fieldName),
-                                        (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0],
-                                        (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[1]));
-                    } else {
-                        reflectiveField = new ReflectiveField(
-                                field.getType(),
-                                fieldHolderClass.getMethod("get".concat(fieldName)),
-                                fieldHolderClass.getMethod("set".concat(fieldName), field.getType()));
-                    }
-                    reflectiveClass.putField(field.getName(), reflectiveField);
-                } catch (NoSuchMethodException exc) {
-                    logger.error("Getter, adder, putter or setter not found", exc);
+                fieldName = field.getName().substring(0, 1).toUpperCase().concat(field.getName().substring(1));
+                if (List.class.isAssignableFrom(field.getType())) {
+                    fieldName = fieldName.substring(0, fieldName.length() - 4); // ...List - field
+                    reflectiveField = new ReflectiveField(
+                            field.getType(),
+                            getClassMethod(fieldHolderClass, "get".concat(fieldName), int.class),
+                            getClassMethod(fieldHolderClass, "add".concat(fieldName),
+                                    (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]));
+                } else if (Map.class.isAssignableFrom(field.getType())) {
+                    fieldName = fieldName.substring(0, fieldName.length() - 3); // ...Map - field
+                    reflectiveField = new ReflectiveField(
+                            field.getType(),
+                            getClassMethod(fieldHolderClass, "get".concat(fieldName),
+                                    (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]),
+                            getClassMethod(fieldHolderClass, "put".concat(fieldName),
+                                    (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0],
+                                    (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[1]));
+                } else {
+                    reflectiveField = new ReflectiveField(
+                            field.getType(),
+                            getClassMethod(fieldHolderClass, "get".concat(fieldName)),
+                            getClassMethod(fieldHolderClass, "set".concat(fieldName), field.getType()));
                 }
+                reflectiveClass.putField(field.getName(), reflectiveField);
             }
         }
     }
+
+    private Method getClassMethod(Class<?> holderClass, String methodName) {
+        try {
+            return holderClass.getMethod(methodName);
+        } catch (NoSuchMethodException exc) {
+            logger.error("Class '{}' have no method named '{}' with no parameter",
+                    holderClass.getName(), methodName);
+        }
+        return null;
+    }
+
+    private Method getClassMethod(Class<?> holderClass, String methodName,
+                                  Class<?> parameterType) {
+        try {
+            return holderClass.getMethod(methodName, parameterType);
+        } catch (NoSuchMethodException exc) {
+            logger.error("Class '{}' have no method named '{}' with parameter type '{}'",
+                    holderClass.getName(), methodName, parameterType.getName());
+        }
+        return null;
+    }
+
+    private Method getClassMethod(Class<?> holderClass, String methodName,
+                                  Class<?> parameterType1, Class<?> parameterType2) {
+        try {
+            return holderClass.getMethod(methodName, parameterType1, parameterType2);
+        } catch (NoSuchMethodException exc) {
+            logger.error("Class '{}' have no method named '{}' with parameters types '{}, {}'",
+                    holderClass.getName(), methodName, parameterType1.getName(), parameterType2.getName());
+        }
+        return null;
+    }
+
 }

@@ -3,6 +3,7 @@ package com.epam.java.rt.rater.parser;
 import com.epam.java.rt.rater.model.reflective.ReflectiveClass;
 import com.epam.java.rt.rater.model.reflective.ReflectiveField;
 import com.epam.java.rt.rater.model.reflective.ReflectiveStack;
+import com.epam.java.rt.rater.service.FromStringAdapter;
 import com.epam.java.rt.rater.service.ReflectiveManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,20 +58,20 @@ public class ObjectParser {
         }
 
         public void startElement(String elementName) {
-            this.currentReflectiveClass = ReflectiveManager.getInstance()
-                    .getReflectiveClass(ObjectParser.this.packageName,
-                            elementName.substring(0, 1).toUpperCase().concat(elementName.substring(1)));
-            if (this.currentReflectiveClass == null) {
-                this.currentReflectiveField = ReflectiveManager.getInstance()
-                        .getReflectiveField(this.parentReflectiveClass, elementName);
-                if (this.currentReflectiveField == null)
-                    throw new IllegalStateException("Field '" + elementName + "' for Class '" +
-                            this.currentReflectiveClass.getEntityClass().getName() + "' not found");
-                this.contentValue = new StringBuilder();
+            logger.debug("startElement({})", elementName);
+            this.currentReflectiveField = ReflectiveManager.getInstance()
+                    .getReflectiveField(this.parentReflectiveClass, elementName);
+            if (this.currentReflectiveField == null) {
+                this.currentReflectiveClass = ReflectiveManager.getInstance()
+                        .getReflectiveClass(ObjectParser.this.packageName,
+                                elementName.substring(0, 1).toUpperCase().concat(elementName.substring(1)));
+                if (this.currentReflectiveClass != null) {
+                    this.result = ReflectiveManager.getInstance().createReflectiveObject(this.currentReflectiveClass);
+                    ObjectParser.objectHandlerStack.push(this);
+                    ObjectParser.this.objectHandler = new ObjectHandler(this.currentReflectiveClass, this.result);
+                }
             } else {
-                this.result = ReflectiveManager.getInstance().createReflectiveObject(this.currentReflectiveClass);
-                ObjectParser.objectHandlerStack.push(this);
-                ObjectParser.this.objectHandler = new ObjectHandler(this.currentReflectiveClass, this.result);
+                this.contentValue = new StringBuilder();
             }
         }
 
@@ -82,9 +83,9 @@ public class ObjectParser {
         public void endElement(String elementName) {
             if (this.currentReflectiveField != null) {
                 try {
-                    ReflectiveManager.getInstance()
-                            .setReflectiveFieldValue(this.parentReflectiveClass, this.parentReflectiveObject,
-                                    elementName, this.contentValue);
+                    if (this.contentValue.length() > 0)
+                        this.currentReflectiveField.getSetter().invoke(this.parentReflectiveObject,
+                            FromStringAdapter.convert(this.currentReflectiveField.getType(), this.contentValue.toString()));
                 } catch (InvocationTargetException | IllegalAccessException exc) {
                     logger.error("Field '{}' not set", elementName, exc);
                 }

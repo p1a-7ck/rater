@@ -18,7 +18,7 @@ import java.util.UUID;
 public class ServiceVoiceFactory {
     private static final Logger logger = LoggerFactory.getLogger(TariffFactory.class);
 
-    public static Service createServiceVoice(XMLStreamReader streamReader, List<Service> uniqueServices) throws XMLStreamException {
+   /* public static Service createServiceVoice(XMLStreamReader streamReader, List<Service> uniqueServices) throws XMLStreamException {
         logger.debug("createServiceVoice");
         Service service = null;
         ServiceVoice.Builder builder = null;
@@ -86,5 +86,5 @@ public class ServiceVoiceFactory {
         }
         return null;
     }
-
+*/
 }

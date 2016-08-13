@@ -9,9 +9,9 @@ import java.lang.reflect.Type;
 public class ReflectiveField {
     private final Method setter;
     private final Method getter;
-    private final Type type;
+    private final Class<?> type;
 
-    public ReflectiveField(Type type, Method getter, Method setter) {
+    public ReflectiveField(Class<?> type, Method getter, Method setter) {
         this.type = type;
         this.getter = getter;
         this.setter = setter;
@@ -25,7 +25,7 @@ public class ReflectiveField {
         return getter;
     }
 
-    public Type getType() {
+    public Class<?> getType() {
         return type;
     }
 }

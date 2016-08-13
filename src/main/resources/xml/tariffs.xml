@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<tariffs xmlns="http://www.rater.kz/tariffs/">
+<tariffList xmlns="http://www.rater.kz/tariffList/">
     <tariff id="" name="standard">
         <operator>tele2</operator>
-        <services>
+        <serviceList>
             <serviceVoice>
                 <name>standard</name>
                 <minSecondsCharging>10</minSecondsCharging>
-                <oneSecondCost>USD, 0.20</oneSecondCost>
+                <oneSecondCost>USD 0.20</oneSecondCost>
                 <calculation>
                     <calculationVoiceSimple/>
                 </calculation>
             </serviceVoice>
-        </services>
+        </serviceList>
     </tariff>
-</tariffs>
+</tariffList>

@@ -1,5 +1,6 @@
 package com.epam.java.rt.rater.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,38 +11,44 @@ public class Tariff {
     private final UUID id;
     private final String name;
     private final String operator;
-    private final List<Service> services;
+    private final List<Service> serviceList;
 
     public static class Builder {
         private UUID id;
         private String name;
         private String operator;
-        private List<Service> services;
+        private List<Service> serviceList;
 
-        public static Builder of(UUID id) {
-            Builder builder = new Builder();
-            builder.id = id;
-            return builder;
+        public Builder() {
+
+        }
+
+        public Builder setId(UUID id) {
+            if (id == null)
+                throw new IllegalArgumentException("Id should ne defined");
+            this.id = id;
+            return this;
         }
 
         public Builder setName(String name) {
             if (name.length() == 0)
-                throw new IllegalStateException("Name should be defined");
+                throw new IllegalArgumentException("Name should be defined");
             this.name = name;
             return this;
         }
 
         public Builder setOperator(String operator) {
             if (operator.length() == 0)
-                throw new IllegalStateException("Operator should be defined");
+                throw new IllegalArgumentException("Operator should be defined");
             this.operator = operator;
             return this;
         }
 
-        public Builder setServices(List<Service> services) {
-            if (services.size() == 0)
-                throw new IllegalStateException("Services should be defined");
-            this.services = services;
+        public Builder addService(Service service) {
+            if (service == null)
+                throw new IllegalArgumentException("Services should be defined");
+            if (this.serviceList == null) this.serviceList = new ArrayList<>();
+            this.serviceList.add(service);
             return this;
         }
 
@@ -51,7 +58,7 @@ public class Tariff {
                     "id=" + id +
                     ", name='" + name + '\'' +
                     ", operator='" + operator + '\'' +
-                    ", services=" + services +
+                    ", serviceList=" + serviceList +
                     '}';
         }
     }
@@ -60,7 +67,7 @@ public class Tariff {
         this.id = builder.id;
         this.name = builder.name;
         this.operator = builder.operator;
-        this.services = builder.services;
+        this.serviceList = builder.serviceList;
     }
 
     public UUID getId() {
@@ -76,19 +83,19 @@ public class Tariff {
     }
 
     public boolean addService(Service service) {
-        return !this.services.contains(service) && this.services.add(service);
+        return !this.serviceList.contains(service) && this.serviceList.add(service);
     }
 
     public Service removeService(int index) {
-        return this.services.remove(index);
+        return this.serviceList.remove(index);
     }
 
     public Service getService(int index) {
-        return this.services.get(index);
+        return this.serviceList.get(index);
     }
 
     public int countServices() {
-        return this.services.size();
+        return this.serviceList.size();
     }
 
     @Override
@@ -97,7 +104,7 @@ public class Tariff {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", operator='" + operator + '\'' +
-                ", services=" + services +
+                ", serviceList=" + serviceList +
                 '}';
     }
 }

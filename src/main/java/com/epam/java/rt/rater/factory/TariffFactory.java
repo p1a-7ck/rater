@@ -17,6 +17,7 @@ import java.util.UUID;
 public class TariffFactory {
     private static final Logger logger = LoggerFactory.getLogger(TariffFactory.class);
 
+/*
     public static Tariff createTariff(XMLStreamReader streamReader, List<Service> uniqueServices) throws XMLStreamException {
         Tariff tariff = null;
         Tariff.Builder builder = null;
@@ -46,6 +47,7 @@ public class TariffFactory {
         }
         return null;
     }
+*/
 
 }
 
