@@ -12,6 +12,12 @@ public class ReflectiveStack<StackItem> {
         this.size = 0;
     }
 
+    public int getSize() { return this.size; }
+
+    public StackItem getCurrent() {
+        return this.next.stackItem;
+    }
+
     public int push(StackItem stackItem) {
         this.next = new ReflectiveNode(stackItem, this.next);
         return this.size++;
@@ -31,10 +37,6 @@ public class ReflectiveStack<StackItem> {
         ReflectiveNode(StackItem stackItem, ReflectiveNode reflectiveNode) {
             this.stackItem = stackItem;
             this.next = reflectiveNode;
-        }
-
-        public StackItem getStackItem() {
-            return this.stackItem;
         }
     }
 }

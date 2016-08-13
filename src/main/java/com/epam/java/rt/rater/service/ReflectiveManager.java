@@ -83,12 +83,18 @@ public class ReflectiveManager {
 
     public Object buildImmutableReflectiveObject(ReflectiveClass reflectiveClass, Object reflectiveObjectBuilder) {
         try {
+            String bName = "", eName = "";
+            if (reflectiveClass.getBuilderClass() != null) bName = reflectiveClass.getBuilderClass().getName();
+            if (reflectiveClass.getEntityClass() != null) eName = reflectiveClass.getEntityClass().getName();
+
+            System.out.println("reflectiveClass = " + reflectiveClass.getClass().getName() +
+                    ", reflectiveClass.getBuilderClass() = " + bName + ", reflectiveClass.getEntityClass() = " + eName);
             if (reflectiveClass.getBuilderClass() == null) return reflectiveObjectBuilder;
             if (reflectiveClass.getEntityClass() != null) {
                 Constructor constructor = reflectiveClass.getEntityClass().getConstructor(reflectiveClass.getBuilderClass());
+                System.out.println(reflectiveObjectBuilder);
                 Object reflectiveObject = constructor.newInstance(reflectiveObjectBuilder);
                 reflectiveObjectBuilder = null;
-                defineReflectiveClassFields(reflectiveClass);
                 return reflectiveObject;
             }
             logger.error("There is no target class defined for reflective object");

@@ -8,10 +8,10 @@ import java.util.Map;
 /**
  * rater
  */
-public class Tariffs {
+public class TariffList {
     private final List<Tariff> tariffList = new ArrayList<>();
 
-    public Tariffs() {
+    public TariffList() {
     }
 
     public boolean addTariff(Tariff tariff) {
@@ -32,7 +32,7 @@ public class Tariffs {
 
     @Override
     public String toString() {
-        return "Tariffs{" +
+        return "TariffList{" +
                 "tariffList=" + tariffList +
                 '}';
     }

@@ -37,6 +37,7 @@ public class ServiceVoice implements Service {
             if (name.length() == 0)
                 throw new IllegalStateException("Name should be defined");
             this.name = name;
+            System.out.println("name set to '" + name + "'");
             return this;
         }
 
@@ -44,6 +45,7 @@ public class ServiceVoice implements Service {
             if (minSecondsCharging <=0 )
                 throw new IllegalStateException("Minimum seconds charging should be more than zero");
             this.minSecondsCharging = minSecondsCharging;
+            System.out.println("minSecondsCharging set to '" + minSecondsCharging + "'");
             return this;
         }
 
@@ -51,6 +53,7 @@ public class ServiceVoice implements Service {
             if (oneSecondCost.getAmount().compareTo(BigDecimal.ZERO) <= 0)
                 throw new IllegalStateException("One second cost should be more than zero");
             this.oneSecondCost = oneSecondCost;
+            System.out.println("oneSecondCost set to '" + oneSecondCost + "'");
             return this;
         }
 
