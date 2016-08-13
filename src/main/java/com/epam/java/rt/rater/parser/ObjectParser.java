@@ -20,8 +20,7 @@ public class ObjectParser {
     public Object parseXML(Class<?> parserClass, String fileName) {
         try {
             logger.info("Parsing with '{}' initiating", parserClass.getSimpleName());
-            ObjectHandler objectHandler = ObjectHandler.newObjectHandler();
-            ((Parser) parserClass.newInstance()).parse(objectHandler,
+            ((Parser) parserClass.newInstance()).parse(ObjectHandler.newObjectHandler(),
                     ObjectParser.class.getClassLoader().getResourceAsStream(fileName));
             logger.info("Parsing with '{}' complete", parserClass.getSimpleName());
             return ObjectHandler.closeObjectHandler();

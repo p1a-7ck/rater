@@ -17,6 +17,7 @@ class ObjectHandler {
     private static final Logger logger = LoggerFactory.getLogger(ObjectHandler.class);
     private static final ReflectiveStack<ObjectHandler> objectHandlerStack = new ReflectiveStack<>();
     private static String packageName;
+
     private Class<?> currentElementClass;
     private ReflectiveClass parentReflectiveClass;
     private Object parentReflectiveObject;
